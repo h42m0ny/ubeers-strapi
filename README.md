@@ -25,4 +25,4 @@ Ensuite, il faut charger les données dans la base `bzh-beers`. Mongo présent d
 
 Vous devriez avoir cela pour la recherche de la brasserie "Lancelot" :
 
-![Image](/static/images/lancelot.png)
+![Image](/images/lancelot.png)
