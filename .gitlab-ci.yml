@@ -1,0 +1,16 @@
+image: node:12.16.1
+
+stages:
+  - deployment
+
+clever-cloud:
+  stage: deployment
+  environment:
+    name: production
+  only:
+    - deploy
+  script:
+    - npm install -g clever-tools
+    - clever login --token CLEVER_TOKEN --secret CLEVER_SECRET
+    - clever link app_bded20d4-9c3f-45d9-96c2-2661cde921b8 --alias ubeers-strapi
+    - clever deploy
