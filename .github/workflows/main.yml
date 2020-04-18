@@ -1,0 +1,33 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Deploy
+
+on:
+  push:
+    branches: [deploy]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.16.1]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # This action requires an unshallow working copy,
+      # so the following prerequisites are necessary:
+      - run: git fetch --prune --unshallow
+
+      # Install and deploy app
+      - run: npm install -g clever-tools
+      - run: clever login --token ${{ secrets.CLEVER_TOKEN }} --secret ${{ secrets.CLEVER_SECRET }}
+      - run: clever link app_bded20d4-9c3f-45d9-96c2-2661cde921b8 --alias ubeers-strapi
+      - run: clever deploy --branch deploy
