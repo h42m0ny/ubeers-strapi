@@ -1,33 +1,32 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
+# Nom de notre workflow
 name: Deploy
 
+# Sur un événement "push" sur la branche production
 on:
   push:
     branches: [deploy]
 
+# Création de notre job deploy
 jobs:
-  build:
+  deploy:
+    # On sélectionne un ubuntu
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [12.16.1]
-
     steps:
+      # On utilise une action de Github pour récupérer le repo local
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
+
+      # Utilisation de notre version de node
+      - name: Use Node.js 12.16.1
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 12.16.1
 
-      # This action requires an unshallow working copy,
-      # so the following prerequisites are necessary:
+      # Récupération de l'ensemble des commits du repository. Par défaut, le clone ne récupére pas un historique profond. Or pour Clever Cloud, c'est indispensable
       - run: git fetch --prune --unshallow
 
-      # Install and deploy app
+      # Installation de clever-tools and deploy app
       - run: npm install -g clever-tools
       - run: clever login --token ${{ secrets.CLEVER_TOKEN }} --secret ${{ secrets.CLEVER_SECRET }}
-      - run: clever link app_bded20d4-9c3f-45d9-96c2-2661cde921b8 --alias ubeers-strapi
-      - run: clever deploy --branch deploy
+      - run: clever link ${{ secrets.CLEVER_APP_ID }} --alias ubeers-ghost
+      - run: clever deploy --branch production
