@@ -28,5 +28,5 @@ jobs:
       # Installation de clever-tools and deploy app
       - run: npm install -g clever-tools
       - run: clever login --token ${{ secrets.CLEVER_TOKEN }} --secret ${{ secrets.CLEVER_SECRET }}
-      - run: clever link ${{ secrets.CLEVER_APP_ID }} --alias ubeers-ghost
-      - run: clever deploy --branch production
+      - run: clever link ${{ secrets.CLEVER_APP_ID }} --alias ubeers-strapi
+      - run: clever deploy --branch deploy
