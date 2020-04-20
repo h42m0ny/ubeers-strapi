@@ -8,7 +8,7 @@ on:
 
 # Création de notre job deploy
 jobs:
-  deploy:
+  deploy-and-build:
     # On sélectionne un ubuntu
     runs-on: ubuntu-latest
 
@@ -23,10 +23,29 @@ jobs:
           node-version: 12.16.1
 
       # Récupération de l'ensemble des commits du repository. Par défaut, le clone ne récupére pas un historique profond. Or pour Clever Cloud, c'est indispensable
-      - run: git fetch --prune --unshallow
+      - name: Configure Git
+        run: |
+          git fetch --prune --unshallow
+          git config --global user.email YOUR_EMAIL
+          git config --global user.name YOUR_NAME
+
+      # Build de notre administration strapi
+      - name: Build Admin Panel
+        run: |
+          npm install 
+          NODE_ENV=production npm run build
+
+      # Commit des fichiers de build
+      - name: Commit build folder
+        run: |
+          git add --force ./build/
+          git add --force ./.cache/
+          git commit -m 'strapi admin build - Github Build'
 
       # Installation de clever-tools and deploy app
-      - run: npm install -g clever-tools
-      - run: clever login --token ${{ secrets.CLEVER_TOKEN }} --secret ${{ secrets.CLEVER_SECRET }}
-      - run: clever link ${{ secrets.CLEVER_APP_ID }} --alias ubeers-strapi
-      - run: clever deploy --branch production
+      - name: Instal and Deploy to Clever
+        run: |
+          npm install -g clever-tools
+          clever login --token ${{ secrets.CLEVER_TOKEN }} --secret ${{ secrets.CLEVER_SECRET }}
+          clever link ${{ secrets.CLEVER_APP_ID }} --alias ubeers-strapi
+          clever deploy --branch production
